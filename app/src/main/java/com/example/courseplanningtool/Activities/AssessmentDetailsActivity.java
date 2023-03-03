@@ -9,20 +9,21 @@ import androidx.fragment.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.example.courseplanningtool.Fragments.AssessmentDetailsFragment;
 import com.example.courseplanningtool.Fragments.TermDetailsFragment;
 import com.example.courseplanningtool.R;
 
-public class TermDetailsActivity extends AppCompatActivity implements TermDetailsFragment.OnTermEventListener {
+public class AssessmentDetailsActivity extends AppCompatActivity implements AssessmentDetailsFragment.OnAssessmentDeletedListener {
 
-    public static final String EXTRA_TERM_ID = "termId";
+    public static final String EXTRA_ASSESSMENT_ID = "assessmentId";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_term_details);
+        setContentView(R.layout.activity_assessment_details);
 
         // Add toolbar
-        Toolbar toolbar = findViewById(R.id.toolbar_term_detail);
+        Toolbar toolbar = findViewById(R.id.toolbar_assessment_detail);
         setSupportActionBar(toolbar);
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
@@ -30,25 +31,19 @@ public class TermDetailsActivity extends AppCompatActivity implements TermDetail
         }
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-        Fragment fragment = fragmentManager.findFragmentById(R.id.term_details_fragment_container);
+        Fragment fragment = fragmentManager.findFragmentById(R.id.assessment_details_fragment_container);
 
         if (fragment == null) {
-            long termId = getIntent().getLongExtra(EXTRA_TERM_ID, -1);
-            fragment = TermDetailsFragment.newInstance(termId);
+            long assessmentId = getIntent().getLongExtra(EXTRA_ASSESSMENT_ID, -1);
+            fragment = AssessmentDetailsFragment.newInstance(assessmentId);
             fragmentManager.beginTransaction()
-                    .add(R.id.term_details_fragment_container, fragment)
+                    .add(R.id.assessment_details_fragment_container, fragment)
                     .commit();
         }
     }
 
-    public void onTermDeleted() {
-        Intent intent = new Intent(this, TermListActivity.class);
-        startActivity(intent);
-    }
-
-    public void onTermEditRequest(long termId) {
-        Intent intent = new Intent(this, TermEditActivity.class);
-        intent.putExtra(TermEditActivity.ARG_TERM_ID, termId);
+    public void onAssessmentDeleted() {
+        Intent intent = new Intent(this, AssessmentListActivity.class);
         startActivity(intent);
     }
 }

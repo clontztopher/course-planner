@@ -1,18 +1,25 @@
 package com.example.courseplanningtool.Fragments;
 
 import android.app.Application;
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+
 import com.example.courseplanningtool.Data.Entities.Term;
 import com.example.courseplanningtool.Data.Repositories.TermRepository;
 import com.example.courseplanningtool.R;
+
+import java.util.List;
+import java.util.concurrent.Future;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -23,7 +30,13 @@ public class TermDetailsFragment extends Fragment {
 
     private static final String ARG_TERM_ID = "termId";
 
-    private LiveData<Term> mTermLive;
+    private Term mTerm;
+
+    private OnTermEventListener mListener;
+    public interface OnTermEventListener {
+        void onTermDeleted();
+        void onTermEditRequest(long id);
+    }
 
     public TermDetailsFragment() {
         // Required empty public constructor
@@ -49,9 +62,14 @@ public class TermDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             long mTermId = getArguments().getLong(ARG_TERM_ID);
-
-            TermRepository termRepo = new TermRepository((Application) getContext().getApplicationContext());
-            mTermLive = termRepo.getTermById(mTermId);
+            Application application = (Application) getContext().getApplicationContext();
+            TermRepository termRepo = new TermRepository(application);
+            Future term = termRepo.getTermById(mTermId);
+            try {
+                mTerm = (Term) term.get();
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -62,15 +80,43 @@ public class TermDetailsFragment extends Fragment {
 
         TextView termDisplayView = view.findViewById(R.id.termDisplayName);
         TextView termDatesView = view.findViewById(R.id.termDatesView);
+        Button deleteButton = view.findViewById(R.id.removeTermBtn);
+        Button editButton = view.findViewById(R.id.editTermButton);
 
-        mTermLive.observe(getViewLifecycleOwner(), term -> {
-            if (term != null) {
-                termDisplayView.setText(term.getDisplayName());
-                String startDateStr = term.getStartDateTimeStampString();
-                String endDateStr = term.getEndDateTimeStampString();
-                termDatesView.setText(startDateStr + "-" + endDateStr);
+        termDisplayView.setText(mTerm.getDisplayName());
+        String startDateStr = mTerm.getStartDateString();
+        String endDateStr = mTerm.getEndDateString();
+        termDatesView.setText(startDateStr + "-" + endDateStr);
+
+        deleteButton.setOnClickListener(button -> {
+            TermRepository termRepo = new TermRepository((Application) getContext().getApplicationContext());
+            Future<?> isDeleted = termRepo.delete(mTerm);
+            try {
+                isDeleted.get();
+                mListener.onTermDeleted();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
+
+        editButton.setOnClickListener(button -> mListener.onTermEditRequest(mTerm.getId()));
+
         return view;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof TermDetailsFragment.OnTermEventListener) {
+            mListener = (TermDetailsFragment.OnTermEventListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implement OnTermEventListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
     }
 }

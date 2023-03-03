@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".Activities.TermAddActivity">
+    tools:context=".Activities.TermEditActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_term_add"
@@ -30,16 +30,7 @@
         android:paddingRight="32dp">
 
         <TextView
-            android:id="@+id/termFieldsError"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="* All Fields Are Required"
-            android:textColor="#E91E63"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/textView6"
+            android:id="@+id/termNameLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
@@ -67,7 +58,8 @@
             android:layout_height="72dp"
             android:ems="10"
             android:hint="Start Date"
-            android:inputType="date" />
+            android:inputType="date"
+            android:tag="startDateField" />
 
         <TextView
             android:id="@+id/textView4"
@@ -82,14 +74,15 @@
             android:layout_height="72dp"
             android:ems="10"
             android:hint="End Date"
-            android:inputType="date" />
+            android:inputType="date"
+            android:tag="endDateField" />
 
         <Button
             android:id="@+id/saveNewTerm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
-            android:onClick="handleSaveButtonClick"
+            android:onClick="handleSaveTermClick"
             android:text="Save" />
     </LinearLayout>
 

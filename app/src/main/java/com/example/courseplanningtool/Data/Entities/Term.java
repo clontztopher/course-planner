@@ -5,6 +5,7 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Entity(tableName = "terms")
 public class Term {
@@ -16,16 +17,10 @@ public class Term {
     private String mDisplayName;
 
     @ColumnInfo(name = "start_date")
-    private String mStartDateTimeStampString;
+    private String mStartDateString;
 
     @ColumnInfo(name = "end_date")
-    private String mEndDateTimeStampString;
-
-    public Term(String mDisplayName, String mStartDateTimeStampString, String mEndDateTimeStampString) {
-        this.mDisplayName = mDisplayName;
-        this.mStartDateTimeStampString = mStartDateTimeStampString;
-        this.mEndDateTimeStampString = mEndDateTimeStampString;
-    }
+    private String mEndDateString;
 
     public long getId() {
         return mId;
@@ -41,19 +36,19 @@ public class Term {
         this.mDisplayName = mDisplayName;
     }
 
-    public String getStartDateTimeStampString() {
-        return mStartDateTimeStampString;
+    public String getStartDateString() {
+        return mStartDateString;
     }
 
-    public void setStartDateTimeStampString(String mStartDateTimeStampString) {
-        this.mStartDateTimeStampString = mStartDateTimeStampString;
+    public void setStartDateString(String mStartDateString) {
+        this.mStartDateString = mStartDateString;
     }
 
-    public String getEndDateTimeStampString() {
-        return mEndDateTimeStampString;
+    public String getEndDateString() {
+        return mEndDateString;
     }
 
-    public void setEndDateTimeStampString(String mEndDateTimeStampString) {
-        this.mEndDateTimeStampString = mEndDateTimeStampString;
+    public void setEndDateString(String mEndDateString) {
+        this.mEndDateString = mEndDateString;
     }
 }

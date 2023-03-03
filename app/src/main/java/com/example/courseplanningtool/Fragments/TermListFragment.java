@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import com.example.courseplanningtool.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,15 +30,12 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class TermListFragment extends Fragment {
-
-    private LiveData<List<Term>> mTermsLive;
-    private List<Term> mTerms;
+    private List<Term> mTerms = new ArrayList<>();
+    private OnTermSelectedListener mListener;
 
     public interface OnTermSelectedListener {
         void onTermSelected(long termId);
     }
-
-    private OnTermSelectedListener mListener;
 
     public TermListFragment() {
         // Required empty public constructor
@@ -57,15 +56,13 @@ public class TermListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TermRepository termRepository = new TermRepository((Application) getContext().getApplicationContext());
-        mTermsLive = termRepository.getAllTerms();
-        List<Term> storedTerms = mTermsLive.getValue();
-
-        if (mTerms == null) {
-            mTerms = new ArrayList<>();
-        }
-
-        if (storedTerms != null) {
-            mTerms.addAll(storedTerms);
+        Future termsFuture = termRepository.getAllTerms();
+        try {
+            List<Term> terms = (List<Term>) termsFuture.get();
+            mTerms.clear();
+            mTerms.addAll(terms);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -73,7 +70,12 @@ public class TermListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_term_list, container, false);
-        TextView noTermsView = view.findViewById(R.id.noTermsView);
+
+        if (mTerms.isEmpty()) {
+            TextView noTermsView = view.findViewById(R.id.noTermsView);
+            noTermsView.setVisibility(View.VISIBLE);
+            return view;
+        }
         // Set up recycler
         RecyclerView recyclerView = view.findViewById(R.id.term_list_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -83,29 +85,7 @@ public class TermListFragment extends Fragment {
         // Add adapter
         TermAdapter termAdapter = new TermAdapter(mTerms);
         recyclerView.setAdapter(termAdapter);
-        // Show terms if present
-        maybeShowTerms(recyclerView, noTermsView);
-
-        mTermsLive.observe(getViewLifecycleOwner(), terms -> {
-            if (terms == null) {
-                   return;
-            }
-            mTerms.clear();
-            mTerms.addAll(terms);
-            maybeShowTerms(recyclerView, noTermsView);
-        });
-
         return view;
-    }
-
-    private void maybeShowTerms(RecyclerView recyclerView, TextView noTermsView) {
-        if (mTerms.size() == 0) {
-            recyclerView.setVisibility(View.GONE);
-            noTermsView.setVisibility(View.VISIBLE);
-            return;
-        }
-        recyclerView.setVisibility(View.VISIBLE);
-        noTermsView.setVisibility(View.GONE);
     }
 
     private class TermHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -125,8 +105,8 @@ public class TermListFragment extends Fragment {
         public void bind(Term term) {
             mTerm = term;
             mTermNameTextView.setText(mTerm.getDisplayName());
-            mTermStartTextView.setText("Start Date");
-            mTermEndTextView.setText("End Date");
+            mTermStartTextView.setText(mTerm.getStartDateString());
+            mTermEndTextView.setText(mTerm.getEndDateString());
         }
 
         @Override

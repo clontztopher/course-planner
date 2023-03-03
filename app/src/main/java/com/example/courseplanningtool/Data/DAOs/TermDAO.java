@@ -16,10 +16,10 @@ import java.util.List;
 public interface TermDAO {
 
     @Query("SELECT * FROM terms")
-    public LiveData<List<Term>> getTerms();
+    public List<Term> getTerms();
 
     @Query("SELECT * FROM terms WHERE id = :id")
-    public LiveData<Term> findTermById(long id);
+    public Term findTermById(long id);
 
     @Insert(onConflict =  OnConflictStrategy.FAIL)
     public void insertTerm(Term term);

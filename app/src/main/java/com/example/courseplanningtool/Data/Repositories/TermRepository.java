@@ -9,29 +9,30 @@ import com.example.courseplanningtool.Data.Entities.Term;
 import com.example.courseplanningtool.Data.PlannerDatabase;
 
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
 public class TermRepository {
     private TermDAO termDAO;
-    private LiveData<List<Term>> mAllTerms;
-    private LiveData<Term> mSingleTerm;
 
     public TermRepository(Application application) {
         PlannerDatabase db = PlannerDatabase.getInstance(application);
         termDAO = db.termDAO();
-        mAllTerms = termDAO.getTerms();
     }
 
-    public LiveData<List<Term>> getAllTerms() {
-        return mAllTerms;
+    public Future<List<Term>> getAllTerms() {
+        return PlannerDatabase.databaseWriteExecutor.submit(() -> termDAO.getTerms());
     }
 
-    public LiveData<Term> getTermById(long id) {
-        return termDAO.findTermById(id);
+    public Future<Term> getTermById(long id) {
+        return PlannerDatabase.databaseWriteExecutor.submit(() -> termDAO.findTermById(id));
     }
 
-    public void insert(Term term) {
-        PlannerDatabase.databaseWriteExecutor.execute(() -> {
-           termDAO.insertTerm(term);
-        });
+    public Future<?> insert(Term term) {
+        return PlannerDatabase.databaseWriteExecutor.submit(() -> termDAO.insertTerm(term));
+    }
+
+    public Future<?> delete(Term term) {
+        return PlannerDatabase.databaseWriteExecutor.submit(() -> termDAO.deleteTerm(term));
     }
 }

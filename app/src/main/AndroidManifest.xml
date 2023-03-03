@@ -12,9 +12,33 @@
         android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
         tools:targetApi="31">
         <activity
-            android:name=".Activities.TermAddActivity"
-            android:parentActivityName=".Activities.TermDetailsActivity"
-            android:exported="false" />
+            android:name=".Activities.AssessmentDetailsActivity"
+            android:exported="false"
+            android:parentActivityName=".Activities.AssessmentListActivity"/>
+        <activity
+            android:name=".Activities.AssessmentEditActivity"
+            android:exported="false"
+            android:parentActivityName=".Activities.AssessmentListActivity"/>
+        <activity
+            android:name=".Activities.AssessmentListActivity"
+            android:exported="false"
+            android:parentActivityName=".Activities.MainActivity"/>
+        <activity
+            android:name=".Activities.CourseListActivity"
+            android:exported="false"
+            android:parentActivityName=".Activities.MainActivity" />
+        <activity
+            android:name=".Activities.CourseDetailActivity"
+            android:exported="false"
+            android:parentActivityName=".Activities.CourseListActivity" />
+        <activity
+            android:name=".Activities.CourseEditActivity"
+            android:exported="false"
+            android:parentActivityName=".Activities.CourseListActivity" />
+        <activity
+            android:name=".Activities.TermEditActivity"
+            android:exported="false"
+            android:parentActivityName=".Activities.TermDetailsActivity" />
         <activity
             android:name=".Activities.TermDetailsActivity"
             android:exported="false"

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/action_terms"
+        android:title="Terms"
+        android:icon="@drawable/baseline_calendar_month_24" />
+    <item android:id="@+id/action_courses"
+        android:title="Courses"
+        android:icon="@drawable/baseline_menu_book_24" />
+    <item android:id="@+id/action_assessments"
+        android:title="Assessments"
+        android:icon="@drawable/baseline_flag_24" />
+</menu>

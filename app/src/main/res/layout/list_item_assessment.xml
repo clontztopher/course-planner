@@ -1,32 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/assessmentListView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingStart="32dp"
     android:paddingTop="10dp"
-    android:paddingRight="32dp"
+    android:paddingEnd="32dp"
     android:paddingBottom="10dp">
 
     <TextView
-        android:id="@+id/termName"
+        android:id="@+id/assessmentTitleColumn"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="2"
-        android:text="Term Name" />
+        android:text="Assessment Title" />
 
     <TextView
-        android:id="@+id/termStart"
+        android:id="@+id/assessmentStartColumn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Term Start"
-        android:textAlignment="textEnd" />
+        android:text="Assessment Start" />
 
     <TextView
-        android:id="@+id/termEnd"
+        android:id="@+id/assessmentEndColumn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Term End"
-        android:textAlignment="textEnd" />
+        android:text="Assessment End" />
 </LinearLayout>
