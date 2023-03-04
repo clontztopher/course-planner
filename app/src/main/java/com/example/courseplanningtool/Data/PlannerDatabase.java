@@ -8,10 +8,10 @@ import androidx.room.RoomDatabase;
 
 import com.example.courseplanningtool.Data.DAOs.AssessmentDAO;
 import com.example.courseplanningtool.Data.DAOs.CourseDAO;
+import com.example.courseplanningtool.Data.DAOs.InstructorDAO;
 import com.example.courseplanningtool.Data.DAOs.TermDAO;
 import com.example.courseplanningtool.Data.Entities.Assessment;
 import com.example.courseplanningtool.Data.Entities.Course;
-import com.example.courseplanningtool.Data.Entities.CourseInstructor;
 import com.example.courseplanningtool.Data.Entities.Instructor;
 import com.example.courseplanningtool.Data.Entities.Term;
 
@@ -22,8 +22,7 @@ import java.util.concurrent.Executors;
         Term.class,
         Course.class,
         Assessment.class,
-//        Instructor.class,
-//        CourseInstructor.class
+        Instructor.class,
 }, version = 1)
 public abstract class PlannerDatabase extends RoomDatabase {
     private static final String DATABASE_NAME = "course_planner.db";
@@ -45,4 +44,5 @@ public abstract class PlannerDatabase extends RoomDatabase {
     public abstract TermDAO termDAO();
     public abstract CourseDAO courseDAO();
     public abstract AssessmentDAO assessmentDAO();
+    public abstract InstructorDAO instructorDAO();
 }

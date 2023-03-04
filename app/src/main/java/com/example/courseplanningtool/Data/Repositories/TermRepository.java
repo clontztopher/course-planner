@@ -32,6 +32,10 @@ public class TermRepository {
         return PlannerDatabase.databaseWriteExecutor.submit(() -> termDAO.insertTerm(term));
     }
 
+    public Future<?> update(Term term) {
+        return PlannerDatabase.databaseWriteExecutor.submit(() -> termDAO.updateTerm(term));
+    }
+
     public Future<?> delete(Term term) {
         return PlannerDatabase.databaseWriteExecutor.submit(() -> termDAO.deleteTerm(term));
     }

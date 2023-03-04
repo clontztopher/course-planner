@@ -1,29 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activities.CourseEditActivity">
+    android:orientation="vertical"
+    tools:context=".Activities.Course.CourseEditActivity">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar_course_add"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:subtitleTextColor="#FFFFFF"
-        app:title="Add Course"
-        app:titleTextColor="#FFFFFF" />
+    <include layout="@layout/toolbar" />
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -44,7 +32,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
-                android:text="New Course Title" />
+                android:text="Course Title" />
 
             <EditText
                 android:id="@+id/courseTitleField"
@@ -58,6 +46,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginBottom="16dp"
                 android:orientation="horizontal">
 
                 <LinearLayout
@@ -79,7 +68,7 @@
                         android:ems="10"
                         android:hint="Start Date"
                         android:inputType="date"
-                        android:tag="courseStartDateFieldTag"/>
+                        android:tag="courseStartDateFieldTag" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -101,7 +90,7 @@
                         android:ems="10"
                         android:hint="End Date"
                         android:inputType="date"
-                        android:tag="courseEndDateFieldTag"/>
+                        android:tag="courseEndDateFieldTag" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -110,15 +99,14 @@
                 android:id="@+id/textView3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
+                android:layout_marginBottom="16dp"
                 android:text="Status" />
 
             <Spinner
                 android:id="@+id/statusSpinner"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="16dp"
                 android:contentDescription="Course Status Selection"
                 android:spinnerMode="dropdown" />
 
@@ -126,130 +114,116 @@
                 android:id="@+id/divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="?android:attr/listDivider" />
-
-            <TextView
-                android:id="@+id/textView7"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Add Instructor" />
-
-            <Spinner
-                android:id="@+id/instructorSpinner"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp" />
-
-            <TextView
-                android:id="@+id/textView6"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:text="Instructors" />
-
-            <ListView
-                android:id="@+id/courseInstructorList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp" />
-
-            <View
-                android:id="@+id/divider2"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="?android:attr/listDivider" />
-
-            <TextView
-                android:id="@+id/textView8"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:text="Add Assessment" />
-
-            <Spinner
-                android:id="@+id/assessmentSpinner"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginBottom="10dp" />
-
-            <TextView
-                android:id="@+id/textView9"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:text="Assessments" />
-
-            <ListView
-                android:id="@+id/courseAssessmentList"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="10dp" />
-
-            <View
-                android:id="@+id/divider3"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="16dp"
                 android:background="?android:attr/listDivider" />
 
             <TextView
                 android:id="@+id/textView10"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="16dp"
                 android:text="Course Notes" />
 
             <EditText
                 android:id="@+id/courseNotesInput"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
+                android:layout_marginBottom="16dp"
                 android:ems="10"
                 android:gravity="start|top"
+                android:hint="Add course notes..."
                 android:inputType="textMultiLine"
                 android:selectAllOnFocus="true"
                 android:singleLine="false" />
 
+            <View
+                android:id="@+id/divider2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="16dp"
+                android:background="?android:attr/listDivider" />
+
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="Assessments" />
+
             <LinearLayout
+                android:id="@+id/assessmentsContainer"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:layout_marginBottom="16dp"
+                android:orientation="vertical">
 
-                <ToggleButton
-                    android:id="@+id/notificationToggle"
-                    android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/noAssessmentView"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:contentDescription="Toggle Start/End Date Notifications"
-                    android:textOff="Notifications Off"
-                    android:textOn="Notifications On" />
-
-                <Button
-                    android:id="@+id/shareButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Share" />
+                    android:text="No assessments yet." />
             </LinearLayout>
+
+            <Button
+                android:id="@+id/addAssessmentBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="#4CAF50"
+                android:text="Add Assessment"
+                android:textColor="#FFFFFF" />
+
+            <View
+                android:id="@+id/divider3"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="16dp"
+                android:background="?android:attr/listDivider" />
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="Instructors" />
+
+            <LinearLayout
+                android:id="@+id/instructorsEditContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/noInstructorsListView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No instructors yet." />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/textView12"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="Add Instructor" />
+
+            <Spinner
+                android:id="@+id/instructorSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="50dp" />
 
             <Button
                 android:id="@+id/saveNewCourse"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
+                android:backgroundTint="#4CAF50"
                 android:onClick="handleSaveCourseClick"
-                android:text="Save" />
+                android:text="Save"
+                android:textColor="#FFFFFF" />
+
         </LinearLayout>
     </ScrollView>
 
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

@@ -1,17 +1,14 @@
-package com.example.courseplanningtool.Activities;
+package com.example.courseplanningtool.Activities.Term;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 
-import android.app.Application;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.DatePicker;
@@ -22,7 +19,6 @@ import com.example.courseplanningtool.Data.Entities.Term;
 import com.example.courseplanningtool.Data.Repositories.TermRepository;
 import com.example.courseplanningtool.Fragments.DatePickerFragment;
 import com.example.courseplanningtool.R;
-import com.google.android.material.navigation.NavigationBarView;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -43,26 +39,7 @@ public class TermEditActivity extends AppCompatActivity implements View.OnFocusC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_term_edit);
 
-        // Add toolbar
-        Toolbar toolbar = findViewById(R.id.toolbar_term_add);
-        setSupportActionBar(toolbar);
-        ActionBar ab = getSupportActionBar();
-        if (ab != null) {
-            ab.setDisplayHomeAsUpEnabled(true);
-        }
-        toolbar.setNavigationOnClickListener(item -> {
-            if (item.getId() != -1) {
-                return;
-            }
-            Intent intent;
-            if (addingNewTerm) {
-                intent = new Intent(this, TermListActivity.class);
-            } else {
-                intent = new Intent(this, TermDetailsActivity.class);
-                intent.putExtra(TermDetailsActivity.EXTRA_TERM_ID, mTerm.getId());
-            }
-            startActivity(intent);
-        });
+        addToolbar();
 
         displayNameField = findViewById(R.id.termNameField);
         startDateField = findViewById(R.id.termStartDateField);
@@ -94,6 +71,32 @@ public class TermEditActivity extends AppCompatActivity implements View.OnFocusC
         endDateField.setText(mTerm.getStartDateString());
     }
 
+    private void addToolbar() {
+        // Add toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            navigateBack();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void navigateBack() {
+        Intent intent;
+        if (!addingNewTerm) {
+            intent = new Intent(this, TermDetailsActivity.class);
+            intent.putExtra(TermDetailsActivity.EXTRA_TERM_ID, mTerm.getId());
+        } else {
+            intent = new Intent(this, TermListActivity.class);
+        }
+        startActivity(intent);
+    }
+
     public void handleSaveTermClick(View view) {
         String displayName = displayNameField.getText().toString();
         String startDateString = startDateField.getText().toString();
@@ -120,17 +123,20 @@ public class TermEditActivity extends AppCompatActivity implements View.OnFocusC
         mTerm.setStartDateString(startDate.format(dtFormatter));
         mTerm.setEndDateString(endDate.format(dtFormatter));
 
-        TermRepository termRepo = new TermRepository((Application) this.getApplicationContext());
-        Future termAddFuture = termRepo.insert(mTerm);
+        TermRepository termRepo = new TermRepository(getApplication());
+        Future<?> termEditFuture;
+        if (addingNewTerm) {
+            termEditFuture = termRepo.insert(mTerm);
+        } else {
+            termEditFuture = termRepo.update(mTerm);
+        }
 
         try {
-            termAddFuture.get();
+            termEditFuture.get();
+            navigateBack();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        Intent intent = new Intent(this, TermListActivity.class);
-        startActivity(intent);
     }
 
 

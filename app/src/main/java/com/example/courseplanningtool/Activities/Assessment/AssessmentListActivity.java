@@ -1,91 +1,99 @@
-package com.example.courseplanningtool.Fragments;
+package com.example.courseplanningtool.Activities.Assessment;
 
-import android.app.Application;
-import android.content.Context;
-import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.courseplanningtool.Activities.Term.TermEditActivity;
 import com.example.courseplanningtool.Data.Entities.Assessment;
 import com.example.courseplanningtool.Data.Repositories.AssessmentRepository;
+import com.example.courseplanningtool.MainMenuProvider;
 import com.example.courseplanningtool.R;
+import com.google.android.material.navigation.NavigationBarView;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link CourseListFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class AssessmentListFragment extends Fragment {
+public class AssessmentListActivity extends AppCompatActivity implements NavigationBarView.OnItemSelectedListener {
+
     private List<Assessment> mAssessments = new ArrayList<>();
-    private AssessmentListFragment.OnAssessmentSelectedListener mListener;
 
-    public interface OnAssessmentSelectedListener {
-        void onAssessmentSelected(long assessmentId);
-    }
-
-    public AssessmentListFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment CourseListFragment.
-     */
-    public static AssessmentListFragment newInstance() {
-        AssessmentListFragment fragment = new AssessmentListFragment();
-        return fragment;
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        return MainMenuProvider.navItemSelected(item, this);
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.list_navigation_items, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_add) {
+            Intent intent = new Intent(this, AssessmentEditActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        AssessmentRepository assessmentRepository = new AssessmentRepository((Application) getContext().getApplicationContext());
+        setContentView(R.layout.activity_assessment_list);
+
+        // Add toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Assessments");
+        setSupportActionBar(toolbar);
+
+        NavigationBarView navBar = findViewById(R.id.main_nav);
+        navBar.setOnItemSelectedListener(this);
+
+        AssessmentRepository assessmentRepository = new AssessmentRepository(getApplication());
         Future<List<Assessment>> assessmentsFuture = assessmentRepository.getAllAssessments();
         try {
-            List<Assessment> assessments = (List<Assessment>) assessmentsFuture.get();
+            List<Assessment> assessments = assessmentsFuture.get();
             mAssessments.clear();
             mAssessments.addAll(assessments);
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_assessment_list, container, false);
 
         if (mAssessments.isEmpty()) {
-            TextView noAssessmentsView = view.findViewById(R.id.noAssessmentsView);
+            TextView noAssessmentsView = findViewById(R.id.noAssessmentsView);
             noAssessmentsView.setVisibility(View.VISIBLE);
-            return view;
+            return;
         }
 
         // Set up recycler
-        RecyclerView recyclerView = view.findViewById(R.id.course_assessment_recycler);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        RecyclerView recyclerView = findViewById(R.id.course_assessment_recycler);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         // Add divider
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
         recyclerView.addItemDecoration(dividerItemDecoration);
         // Add adapter
-        AssessmentListFragment.AssessmentAdapter assessmentAdapter = new AssessmentListFragment.AssessmentAdapter(mAssessments);
+        AssessmentAdapter assessmentAdapter = new AssessmentAdapter(mAssessments);
         recyclerView.setAdapter(assessmentAdapter);
 
-        return view;
     }
 
     private class AssessmentHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -111,11 +119,13 @@ public class AssessmentListFragment extends Fragment {
 
         @Override
         public void onClick(View view) {
-            mListener.onAssessmentSelected(mAssessment.getAssessmentId());
+            Intent intent = new Intent(getParent(), AssessmentDetailsActivity.class);
+            intent.putExtra(AssessmentDetailsActivity.EXTRA_ASSESSMENT_ID, mAssessment.getAssessmentId());
+            startActivity(intent);
         }
     }
 
-    private class AssessmentAdapter extends RecyclerView.Adapter<AssessmentListFragment.AssessmentHolder> {
+    private class AssessmentAdapter extends RecyclerView.Adapter<AssessmentHolder> {
         private List<Assessment> mAssessments;
 
         public AssessmentAdapter(List<Assessment> assessments) {
@@ -123,13 +133,13 @@ public class AssessmentListFragment extends Fragment {
         }
 
         @Override
-        public AssessmentListFragment.AssessmentHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-            return new AssessmentListFragment.AssessmentHolder(layoutInflater, parent);
+        public AssessmentHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+            return new AssessmentHolder(layoutInflater, parent);
         }
 
         @Override
-        public void onBindViewHolder(AssessmentListFragment.AssessmentHolder assessmentHolder, int position) {
+        public void onBindViewHolder(AssessmentHolder assessmentHolder, int position) {
             Assessment assessment = mAssessments.get(position);
             assessmentHolder.bind(assessment);
         }
@@ -140,19 +150,4 @@ public class AssessmentListFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof AssessmentListFragment.OnAssessmentSelectedListener) {
-            mListener = (AssessmentListFragment.OnAssessmentSelectedListener) context;
-        } else {
-            throw new RuntimeException(context.toString() + " must implement OnAssessmentSelectedListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
 }

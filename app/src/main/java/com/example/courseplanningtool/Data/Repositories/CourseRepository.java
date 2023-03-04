@@ -24,9 +24,17 @@ public class CourseRepository {
     public Future<Course> findCourseById(long id) {
         return PlannerDatabase.databaseWriteExecutor.submit(() -> courseDAO.findCourseById(id));
     }
+    
+    public Future<List<Course>> getCoursesByTerm(long termId) {
+        return PlannerDatabase.databaseWriteExecutor.submit(() -> courseDAO.getCoursesByTerm(termId));
+    }
 
     public Future<?> insert(Course course) {
         return PlannerDatabase.databaseWriteExecutor.submit(() -> courseDAO.insertCourse(course));
+    }
+
+    public Future<?> update(Course course) {
+        return PlannerDatabase.databaseWriteExecutor.submit(() -> courseDAO.updateCourse(course));
     }
 
     public Future<?> delete(Course course) {

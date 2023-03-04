@@ -20,6 +20,9 @@ public interface AssessmentDAO {
     @Query("SELECT * from assessments WHERE assessmentId = :id")
     public Assessment findAssessmentById(long id);
 
+    @Query("SELECT * from assessments WHERE course_id = :courseId")
+    public List<Assessment> getAssessmentsForCourse(long courseId);
+
     @Insert(onConflict = OnConflictStrategy.FAIL)
     public void insertAssessment(Assessment assessment);
 

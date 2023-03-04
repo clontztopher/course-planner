@@ -21,12 +21,20 @@ public class AssessmentRepository {
         return PlannerDatabase.databaseWriteExecutor.submit(() -> assessmentDAO.getAllAssessments());
     }
 
+    public Future<List<Assessment>> getAssessmentsForCourse(long courseId) {
+        return PlannerDatabase.databaseWriteExecutor.submit(() -> assessmentDAO.getAssessmentsForCourse(courseId));
+    }
+
     public Future<Assessment> findAssessmentById(long id) {
         return PlannerDatabase.databaseWriteExecutor.submit(() -> assessmentDAO.findAssessmentById(id));
     }
 
     public Future<?> insert(Assessment assessment) {
         return PlannerDatabase.databaseWriteExecutor.submit(() -> assessmentDAO.insertAssessment(assessment));
+    }
+
+    public Future<?> update(Assessment assessment) {
+        return PlannerDatabase.databaseWriteExecutor.submit(() -> assessmentDAO.updateAssessment(assessment));
     }
 
     public Future<?> delete(Assessment assessment) {

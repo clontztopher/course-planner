@@ -22,7 +22,7 @@ public class Assessment {
     private String endDate;
 
     @ColumnInfo(name = "course_id")
-    private String assocCourseId;
+    private long assocCourseId;
 
     public long getAssessmentId() {
         return assessmentId;
@@ -64,11 +64,11 @@ public class Assessment {
         this.endDate = endDate;
     }
 
-    public String getAssocCourseId() {
+    public long getAssocCourseId() {
         return assocCourseId;
     }
 
-    public void setAssocCourseId(String assocCourseId) {
+    public void setAssocCourseId(long assocCourseId) {
         this.assocCourseId = assocCourseId;
     }
 }
