@@ -27,32 +27,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
+/**
+ * Term List View
+ *
+ * 1. Lists all terms
+ * 2. Shows alternate view if no terms
+ * 3. Has "Add Term" button that goes to TermEdit with no extra
+ * 4. Terms in list are clickable and go to TermDetail with termId extra
+ */
 public class TermListActivity extends AppCompatActivity implements NavigationBarView.OnItemSelectedListener {
     private List<Term> mTerms = new ArrayList<>();
+    private RecyclerView recyclerView;
+    private TextView noTermsView;
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         return MainMenuProvider.navItemSelected(item, this);
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_term_list);
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("Course Terms");
-        setSupportActionBar(toolbar);
-
-        NavigationBarView navBar = findViewById(R.id.main_nav);
-        navBar.setOnItemSelectedListener(this);
-
-        boolean hasTermData = attachTermData();
-        RecyclerView recyclerView = setupRecyclerView();
-
-        if (!hasTermData) {
-            showNoTermView(recyclerView);
-        }
     }
 
     @Override
@@ -72,6 +62,27 @@ public class TermListActivity extends AppCompatActivity implements NavigationBar
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_term_list);
+        addNavigation();
+
+        noTermsView = findViewById(R.id.noTermsView);
+        recyclerView = findViewById(R.id.term_list_recycler);
+        setupRecyclerView();
+        showHideTerms();
+    }
+
+    private void addNavigation() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Course Terms");
+        setSupportActionBar(toolbar);
+
+        NavigationBarView navBar = findViewById(R.id.main_nav);
+        navBar.setOnItemSelectedListener(this);
+    }
+
     private boolean attachTermData() {
         TermRepository termRepository = new TermRepository(getApplication());
         Future<List<Term>> termsFuture = termRepository.getAllTerms();
@@ -83,14 +94,10 @@ public class TermListActivity extends AppCompatActivity implements NavigationBar
             e.printStackTrace();
         }
 
-        if (mTerms.isEmpty()) {
-            return false;
-        }
-        return true;
+        return !mTerms.isEmpty();
     }
 
-    private RecyclerView setupRecyclerView() {
-        RecyclerView recyclerView = findViewById(R.id.term_list_recycler);
+    private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         // Add divider
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
@@ -98,66 +105,23 @@ public class TermListActivity extends AppCompatActivity implements NavigationBar
         // Add adapter
         TermAdapter termAdapter = new TermAdapter(mTerms);
         recyclerView.setAdapter(termAdapter);
-        return recyclerView;
     }
 
-    private void showNoTermView(RecyclerView recyclerView) {
-        TextView noTermsView = findViewById(R.id.noTermsView);
-        noTermsView.setVisibility(View.VISIBLE);
-        recyclerView.setVisibility(View.GONE);
-    }
+    private void showHideTerms() {
+        boolean hasTermData = attachTermData();
 
-    private class TermHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private Term mTerm;
-        private final TextView mTermNameTextView;
-        private final TextView mTermStartTextView;
-        private final TextView mTermEndTextView;
-
-        public TermHolder(LayoutInflater inflater, ViewGroup parent) {
-            super(inflater.inflate(R.layout.list_item_term, parent, false));
-            itemView.setOnClickListener(this);
-            mTermNameTextView = itemView.findViewById(R.id.termName);
-            mTermStartTextView = itemView.findViewById(R.id.termStart);
-            mTermEndTextView = itemView.findViewById(R.id.termEnd);
-        }
-
-        public void bind(Term term) {
-            mTerm = term;
-            mTermNameTextView.setText(mTerm.getDisplayName());
-            mTermStartTextView.setText(mTerm.getStartDateString());
-            mTermEndTextView.setText(mTerm.getEndDateString());
-        }
-
-        @Override
-        public void onClick(View view) {
-            Intent intent = new Intent(view.getContext(), TermDetailsActivity.class);
-            intent.putExtra(TermDetailsActivity.EXTRA_TERM_ID, mTerm.getId());
-            startActivity(intent);
+        if (!hasTermData) {
+            noTermsView.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            noTermsView.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
         }
     }
 
-    private class TermAdapter extends RecyclerView.Adapter<TermHolder> {
-        private final List<Term> mTerms;
-
-        public TermAdapter(List<Term> terms) {
-            mTerms = terms;
-        }
-
-        @Override
-        public TermHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-            return new TermHolder(layoutInflater, parent);
-        }
-
-        @Override
-        public void onBindViewHolder(TermHolder termHolder, int position) {
-            Term term = mTerms.get(position);
-            termHolder.bind(term);
-        }
-
-        @Override
-        public int getItemCount() {
-            return mTerms.size();
-        }
+    @Override
+    public void onResume() {
+        super.onResume();
+        showHideTerms();
     }
 }

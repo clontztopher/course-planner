@@ -11,21 +11,29 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.courseplanningtool.Activities.Assessment.AssessmentEditActivity;
+import com.example.courseplanningtool.Activities.Assessment.AssessmentListActivity;
 import com.example.courseplanningtool.Activities.Term.TermDetailsActivity;
 import com.example.courseplanningtool.Data.Entities.Assessment;
 import com.example.courseplanningtool.Data.Entities.Course;
+import com.example.courseplanningtool.Data.Entities.Term;
 import com.example.courseplanningtool.Data.Repositories.AssessmentRepository;
 import com.example.courseplanningtool.Data.Repositories.CourseRepository;
+import com.example.courseplanningtool.Data.Repositories.TermRepository;
 import com.example.courseplanningtool.Fragments.DatePickerFragment;
 import com.example.courseplanningtool.R;
 
@@ -37,22 +45,42 @@ import java.util.concurrent.Future;
 
 public class CourseEditActivity extends AppCompatActivity implements View.OnFocusChangeListener, DatePickerDialog.OnDateSetListener, AdapterView.OnItemSelectedListener {
 
+    /**
+     * Accepts course id extra argument for updating fields with data from course to edit
+     */
     public static final String EXTRA_COURSE_ID = "courseId";
+
+    /**
+     * Accepts term id extra argument if new course is being created
+     */
     public static final String EXTRA_TERM_ID = "termId";
-    private DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+    private final DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+
+    /**
+     * Flag for whether activity is created to add a new course or edit an existing one
+     */
     private boolean addingNewCourse = false;
-    private Course mCourse;
-    private List<Assessment> mAssessments = new ArrayList<>();
-    private long mTermId;
+
+    /**
+     * The course that will eventually be updated or saved
+     */
+    private Course course;
+
+    /**
+     * Below are the views that will hold the data for saving
+     */
     private TextView courseTitleField;
     private TextView startDateField;
     private TextView endDateField;
     private Spinner statusSpinner;
-    private Spinner instructorSpinner;
-    private LinearLayout assessmentLayout;
     private TextView courseNotesField;
+
+    /**
+     * Saves the current target view of data selector
+     */
     private Object activeDateSelection;
-    private LinearLayout assessmentContainer;
+    private ArrayAdapter<CharSequence> statusSpinnerAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,10 +88,23 @@ public class CourseEditActivity extends AppCompatActivity implements View.OnFocu
         setContentView(R.layout.activity_course_edit);
 
         long courseId = getIntent().getLongExtra(EXTRA_COURSE_ID, -1);
-        mTermId = getIntent().getLongExtra(EXTRA_TERM_ID, -1);
+        long associatedTermId = getIntent().getLongExtra(EXTRA_TERM_ID, -1);
 
         addToolbar();
 
+        assignViews();
+
+        if (courseId == -1) {
+            course = new Course();
+            course.setTermId(associatedTermId);
+            addingNewCourse = true;
+        } else {
+            attachCourseData(courseId);
+            setCourseViews();
+        }
+    }
+
+    private void assignViews() {
         // Text input fields
         courseTitleField = findViewById(R.id.courseTitleField);
         courseNotesField = findViewById(R.id.courseNotesInput);
@@ -76,85 +117,32 @@ public class CourseEditActivity extends AppCompatActivity implements View.OnFocu
 
         // Spinners
         statusSpinner = findViewById(R.id.statusSpinner);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.course_status_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        statusSpinner.setAdapter(adapter);
+        statusSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.course_status_array, android.R.layout.simple_spinner_item);
+        statusSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        statusSpinner.setAdapter(statusSpinnerAdapter);
+    }
 
-        // Layout
-        assessmentContainer = findViewById(R.id.assessmentsContainer);
-
-        // Maybe useful for adding instructors and assessments
-        // spinner.setOnItemSelectedListener(this);
-
-        if (courseId == -1) {
-            mCourse = new Course();
-            addingNewCourse = true;
-            return;
-        }
-
+    private void attachCourseData(long courseId) {
         CourseRepository courseRepo = new CourseRepository(getApplication());
         Future<Course> courseFuture = courseRepo.findCourseById(courseId);
         try {
-            mCourse = courseFuture.get();
+            course = courseFuture.get();
         } catch(Exception e) {
             e.printStackTrace();
         }
+    }
 
-        courseTitleField.setText(mCourse.getTitle());
-        startDateField.setText(mCourse.getStartDateString());
-        endDateField.setText(mCourse.getEndDateString());
-        statusSpinner.setSelection(adapter.getPosition(mCourse.getStatus()));
-        courseNotesField.setText(mCourse.getNotes());
-
-        AssessmentRepository assessmentRepository = new AssessmentRepository(getApplication());
-        Future<List<Assessment>> assessmentsFuture = assessmentRepository.getAssessmentsForCourse(mCourse.getCourseId());
-        try {
-            mAssessments = assessmentsFuture.get();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (!mAssessments.isEmpty()) {
-            TextView noAssessmentsView = findViewById(R.id.noAssessmentView);
-            noAssessmentsView.setVisibility(View.GONE);
-            for (Assessment assessment: mAssessments) {
-                LinearLayout assessmentItemView = (LinearLayout) getLayoutInflater().inflate(R.layout.list_item_assessment, null);
-                TextView assessmentTitleView = assessmentItemView.findViewById(R.id.assessmentTitleColumn);
-                TextView assessmentStartView = assessmentTitleView.findViewById(R.id.assessmentStartColumn);
-                TextView assessmentEndView = assessmentTitleView.findViewById(R.id.assessmentEndColumn);
-                assessmentTitleView.setText(assessment.getAssessmentTitle());
-                assessmentStartView.setText(assessment.getStartDate());
-                assessmentEndView.setText(assessment.getEndDate());
-                assessmentContainer.addView(assessmentItemView);
-            }
-        }
-
+    private void setCourseViews() {
+        courseTitleField.setText(course.getTitle());
+        startDateField.setText(course.getStartDateString());
+        endDateField.setText(course.getEndDateString());
+        courseNotesField.setText(course.getNotes());
     }
 
     private void addToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Add/Edit Course");
         setSupportActionBar(toolbar);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            navigateBack();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void navigateBack() {
-        Intent intent;
-        if (addingNewCourse) {
-            intent = new Intent(this, TermDetailsActivity.class);
-            intent.putExtra(TermDetailsActivity.EXTRA_TERM_ID, mTermId);
-        } else {
-            intent = new Intent(this, CourseDetailActivity.class);
-            intent.putExtra(CourseDetailActivity.EXTRA_COURSE_ID, mCourse.getCourseId());
-        }
-        startActivity(intent);
     }
 
     public void handleSaveCourseClick(View view) {
@@ -181,24 +169,24 @@ public class CourseEditActivity extends AppCompatActivity implements View.OnFocu
             return;
         }
 
-        mCourse.setTitle(courseTitle);
-        mCourse.setStartDateString(startDate.format(dtFormatter));
-        mCourse.setEndDateString(endDate.format(dtFormatter));
-        mCourse.setStatus(courseStatus);
-        mCourse.setNotes(courseNotesString);
+        course.setTitle(courseTitle);
+        course.setStartDateString(startDate.format(dtFormatter));
+        course.setEndDateString(endDate.format(dtFormatter));
+        course.setStatus(courseStatus);
+        course.setNotes(courseNotesString);
 
-        CourseRepository courseRepo = new CourseRepository((Application) this.getApplicationContext());
+        CourseRepository courseRepo = new CourseRepository(getApplication());
         Future<?> courseEditFuture;
+
         if (addingNewCourse) {
-            mCourse.setTermId(mTermId);
-            courseEditFuture = courseRepo.insert(mCourse);
+            courseEditFuture = courseRepo.insert(course);
         } else {
-            courseEditFuture = courseRepo.update(mCourse);
+            courseEditFuture = courseRepo.update(course);
         }
 
         try {
             courseEditFuture.get();
-            navigateBack();
+            finish();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -231,14 +219,44 @@ public class CourseEditActivity extends AppCompatActivity implements View.OnFocu
         activeDateSelection = null;
     }
 
+    private void deleteCourse() {
+        CourseRepository courseRepo = new CourseRepository(getApplication());
+        Future<?> deleteFuture = courseRepo.delete(course);
+        try {
+            deleteFuture.get();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
-    public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
-        Log.d("ID TEST", String.valueOf(adapterView.getId()));
-        Log.d("ID TEST", String.valueOf(statusSpinner.getId()));
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        // Mandatory callback for interface
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
-        // Maybe useful for adding instructors and assessments
+        if (!addingNewCourse && adapterView.getId() == statusSpinner.getId()) {
+            adapterView.setSelection(statusSpinnerAdapter.getPosition(course.getStatus()));
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.edit_navigation_items, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_delete) {
+            Intent intent = new Intent(this, CourseListActivity.class);
+            intent.putExtra(CourseListActivity.ASSOCIATED_TERM_ID, course.getTermId());
+            deleteCourse();
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

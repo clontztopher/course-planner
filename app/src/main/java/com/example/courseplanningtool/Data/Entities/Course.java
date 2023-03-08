@@ -82,4 +82,8 @@ public class Course {
     public void setNotes(String mNotes) {
         this.mNotes = mNotes;
     }
+    @Override
+    public String toString() {
+        return getTitle();
+    }
 }

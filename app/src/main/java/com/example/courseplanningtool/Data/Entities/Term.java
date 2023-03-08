@@ -51,4 +51,9 @@ public class Term {
     public void setEndDateString(String mEndDateString) {
         this.mEndDateString = mEndDateString;
     }
+
+    @Override
+    public String toString() {
+        return getDisplayName();
+    }
 }

@@ -4,6 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,25 +17,33 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.courseplanningtool.Activities.Assessment.AssessmentAdapter;
 import com.example.courseplanningtool.Activities.Assessment.AssessmentEditActivity;
+import com.example.courseplanningtool.Activities.Assessment.AssessmentListActivity;
+import com.example.courseplanningtool.Activities.Instructor.InstructorAdapter;
+import com.example.courseplanningtool.Activities.Instructor.InstructorListActivity;
 import com.example.courseplanningtool.Data.Entities.Assessment;
 import com.example.courseplanningtool.Data.Entities.Course;
 import com.example.courseplanningtool.Data.Entities.Instructor;
+import com.example.courseplanningtool.Data.Entities.Term;
 import com.example.courseplanningtool.Data.Repositories.AssessmentRepository;
 import com.example.courseplanningtool.Data.Repositories.CourseRepository;
 import com.example.courseplanningtool.Data.Repositories.InstructorRepository;
+import com.example.courseplanningtool.Data.Repositories.TermRepository;
+import com.example.courseplanningtool.MainMenuProvider;
 import com.example.courseplanningtool.R;
+import com.example.courseplanningtool.Utility.CancelRecyclerClick;
+import com.google.android.material.navigation.NavigationBarView;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
-public class CourseDetailActivity extends AppCompatActivity {
+public class CourseDetailActivity extends AppCompatActivity implements NavigationBarView.OnItemSelectedListener {
 
     public static final String EXTRA_COURSE_ID = "courseId";
     private Course mCourse;
-    private List<Assessment> mAssessments = new ArrayList<>();
-    private List<Instructor> mInstructors = new ArrayList<>();
+    private Term mTerm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,21 +53,24 @@ public class CourseDetailActivity extends AppCompatActivity {
         Intent intent = getIntent();
         long courseId = intent.getLongExtra(EXTRA_COURSE_ID, -1);
 
-        addToolbar();
         attachData(courseId);
+        addToolbar();
         layoutView();
     }
 
     private void addToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("Course Details");
+        toolbar.setTitle("Term: " + mTerm.getDisplayName());
         setSupportActionBar(toolbar);
+
+        NavigationBarView navBar = findViewById(R.id.main_nav);
+        navBar.setOnItemSelectedListener(this);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.details_navigation_items_course, menu);
+        inflater.inflate(R.menu.details_navigation_items, menu);
         return true;
     }
 
@@ -68,32 +82,28 @@ public class CourseDetailActivity extends AppCompatActivity {
             startActivity(intent);
             return true;
         }
-        if (item.getItemId() == R.id.action_add) {
-            Intent intent = new Intent(this, AssessmentEditActivity.class);
-            intent.putExtra(AssessmentEditActivity.EXTRA_COURSE_ID, mCourse.getCourseId());
-            startActivity(intent);
-            return true;
-        }
-        if (item.getItemId() == R.id.action_delete) {
-            deleteCourse();
-            Intent intent = new Intent(this, CourseListActivity.class);
-            startActivity(intent);
-        }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        return MainMenuProvider.navItemSelected(item, this);
     }
 
     private void attachData(long courseId) {
         CourseRepository courseRepo = new CourseRepository(getApplication());
-        AssessmentRepository assessmentRepo = new AssessmentRepository(getApplication());
-        InstructorRepository instructorRepo = new InstructorRepository(getApplication());
-
         Future<Course> courseFuture = courseRepo.findCourseById(courseId);
-        Future<List<Assessment>> assessmentsFuture = assessmentRepo.getAssessmentsForCourse(courseId);
-
         try {
             mCourse = courseFuture.get();
-            mAssessments = assessmentsFuture.get();
         } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        TermRepository termRepo = new TermRepository(getApplication());
+        Future<Term> termFuture = termRepo.getTermById(mCourse.getTermId());
+        try {
+            mTerm = termFuture.get();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -110,43 +120,24 @@ public class CourseDetailActivity extends AppCompatActivity {
         courseDatesView.setText(startDateStr + "-" + endDateStr);
         courseStatusView.setText(mCourse.getStatus());
         courseNotesView.setText(mCourse.getNotes());
-
-        TextView noAssessmentsView = findViewById(R.id.noAssessmentsView);
-        LinearLayout assessmentLayout = findViewById(R.id.assessmentListHolder);
-        if (!mAssessments.isEmpty()) {
-            noAssessmentsView.setVisibility(View.GONE);
-            for(Assessment assessment : mAssessments) {
-                LinearLayout assessmentItemView = (LinearLayout) getLayoutInflater().inflate(R.layout.list_item_assessment, null);
-                TextView titleView = assessmentItemView.findViewById(R.id.assessmentTitleColumn);
-                TextView startDateView = assessmentItemView.findViewById(R.id.assessmentStartColumn);
-                TextView endDateView = assessmentItemView.findViewById(R.id.assessmentEndColumn);
-                titleView.setText(assessment.getAssessmentTitle());
-                startDateView.setText(assessment.getStartDate());
-                endDateView.setText(assessment.getEndDate());
-                assessmentLayout.addView(assessmentItemView);
-            }
-        }
-
-        TextView noInstructorsView = findViewById(R.id.noInstructorsView);
-        LinearLayout instructorLayout = findViewById(R.id.courseInstructorsListHolder);
-        if (!mInstructors.isEmpty()) {
-            noInstructorsView.setVisibility(View.GONE);
-            for(Instructor instructor : mInstructors) {
-                LinearLayout instructorItemView = (LinearLayout) getLayoutInflater().inflate(R.layout.list_item_instructor, null);
-                TextView titleView = instructorItemView.findViewById(R.id.instructorListName);
-                TextView emailView = instructorItemView.findViewById(R.id.instructorListEmail);
-                TextView phoneView = instructorItemView.findViewById(R.id.instructorListPhone);
-                titleView.setText(instructor.getName());
-                emailView.setText(instructor.getEmail());
-                phoneView.setText(instructor.getPhone());
-                instructorLayout.addView(instructorItemView);
-            }
-        }
     }
 
-    private void deleteCourse() {
-        /**
-         * TODO: Implement
-         */
+    public void handleAssessmentButtonClick(View view) {
+        Intent intent = new Intent(this, AssessmentListActivity.class);
+        intent.putExtra(AssessmentListActivity.EXTRA_COURSE_ID, mCourse.getCourseId());
+        startActivity(intent);
+    }
+
+    public void handleInstructorButtonClick(View view) {
+        Intent intent = new Intent(this, InstructorListActivity.class);
+        intent.putExtra(InstructorListActivity.EXTRA_COURSE_ID, mCourse.getCourseId());
+        startActivity(intent);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        attachData(mCourse.getCourseId());
+        layoutView();
     }
 }

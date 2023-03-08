@@ -7,7 +7,6 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "instructors")
 public class Instructor {
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo
     private long instructorId;
 
     @ColumnInfo(name = "name")
@@ -50,4 +49,10 @@ public class Instructor {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
+
 }

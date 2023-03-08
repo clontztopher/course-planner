@@ -5,28 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".Activities.Assessment.AssessmentEditActivity">
+    tools:context=".Activities.Instructor.InstructorEditActivity">
 
     <include layout="@layout/toolbar" />
 
-    <FrameLayout
-        android:id="@+id/warningNoCoursesView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/textView6"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="Assessments must be associated with a course. Please add a course before proceeding."
-            android:textSize="20sp" />
-    </FrameLayout>
-
     <LinearLayout
-        android:id="@+id/assessmentEditMainActivity"
+        android:id="@+id/instructorEditMainActivity"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -35,19 +19,19 @@
         android:paddingRight="32dp">
 
         <TextView
-            android:id="@+id/assessmentNameLabel"
+            android:id="@+id/instructorNameLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="Assessment Name" />
+            android:text="Name" />
 
         <EditText
-            android:id="@+id/assessmentNameField"
+            android:id="@+id/instructorNameField"
             android:layout_width="match_parent"
             android:layout_height="72dp"
             android:layout_marginBottom="16dp"
             android:ems="10"
-            android:hint="Assessment Name"
+            android:hint="Instructor Name"
             android:inputType="textPersonName" />
 
         <TextView
@@ -55,55 +39,40 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="Start Date" />
+            android:text="Email" />
 
         <EditText
-            android:id="@+id/assessmentStartDateField"
+            android:id="@+id/instructorEmailField"
             android:layout_width="match_parent"
             android:layout_height="72dp"
             android:layout_marginBottom="16dp"
             android:ems="10"
-            android:hint="Start Date"
-            android:inputType="date"
-            android:tag="assessmentStartDateFieldTag" />
+            android:hint="Instructor Email"
+            android:inputType="textEmailAddress" />
 
         <TextView
             android:id="@+id/textView4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="End Date" />
+            android:text="Phone" />
 
         <EditText
-            android:id="@+id/assessmentEndDateField"
+            android:id="@+id/instructorPhoneField"
             android:layout_width="match_parent"
             android:layout_height="72dp"
             android:layout_marginBottom="16dp"
             android:ems="10"
-            android:hint="End Date"
-            android:inputType="date"
-            android:tag="assessmentEndDateFieldTag" />
-
-        <TextView
-            android:id="@+id/textView7"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="Type" />
-
-        <Spinner
-            android:id="@+id/assessmentTypeSpinner"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginBottom="16dp" />
+            android:hint="Instructor Phone"
+            android:inputType="phone" />
 
         <Button
-            android:id="@+id/saveNewAssessment"
+            android:id="@+id/saveInstructor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
             android:backgroundTint="#4CAF50"
-            android:onClick="handleSaveAssessmentClick"
+            android:onClick="handleSaveInstructorClick"
             android:text="Save"
             android:textColor="#FFFFFF" />
     </LinearLayout>

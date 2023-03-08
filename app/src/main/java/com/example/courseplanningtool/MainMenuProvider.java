@@ -21,16 +21,16 @@ public abstract class MainMenuProvider {
                 context.startActivity(intent);
                 return true;
             }
-            case R.id.action_courses: {
-                Intent intent = new Intent(context, CourseListActivity.class);
-                context.startActivity(intent);
-                return true;
-            }
-            case R.id.action_assessments: {
-                Intent intent = new Intent(context, AssessmentListActivity.class);
-                context.startActivity(intent);
-                return true;
-            }
+//            case R.id.action_courses: {
+//                Intent intent = new Intent(context, CourseListActivity.class);
+//                context.startActivity(intent);
+//                return true;
+//            }
+//            case R.id.action_assessments: {
+//                Intent intent = new Intent(context, AssessmentListActivity.class);
+//                context.startActivity(intent);
+//                return true;
+//            }
             case R.id.action_instructors: {
                 Intent intent = new Intent(context, InstructorListActivity.class);
                 context.startActivity(intent);

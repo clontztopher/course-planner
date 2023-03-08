@@ -26,16 +26,20 @@ public class InstructorRepository {
         return PlannerDatabase.databaseWriteExecutor.submit(() -> instructorDAO.getInstructors());
     }
 
-//    public Future<Term> getTermById(long id) {
-//        return PlannerDatabase.databaseWriteExecutor.submit(() -> termDAO.findTermById(id));
-//    }
-//
-//    public Future<?> insert(Term term) {
-//        return PlannerDatabase.databaseWriteExecutor.submit(() -> termDAO.insertTerm(term));
-//    }
-//
-//    public Future<?> delete(Term term) {
-//        return PlannerDatabase.databaseWriteExecutor.submit(() -> termDAO.deleteTerm(term));
-//    }
+    public Future<Instructor> findInstructorById(long instructorId) {
+        return PlannerDatabase.databaseWriteExecutor.submit(() -> instructorDAO.findInstructorById(instructorId));
+    }
+
+    public Future<?> addNewInstructor(Instructor instructor) {
+        return PlannerDatabase.databaseWriteExecutor.submit(() -> instructorDAO.insertInstructor(instructor));
+    }
+
+    public Future<?> updateInstructor(Instructor instructor) {
+        return PlannerDatabase.databaseWriteExecutor.submit(() -> instructorDAO.updateInstructor(instructor));
+    }
+
+    public Future<?> deleteInstructor(Instructor instructor) {
+        return PlannerDatabase.databaseWriteExecutor.submit(() -> instructorDAO.deleteInstructor(instructor));
+    }
 }
 

@@ -12,6 +12,8 @@ import com.example.courseplanningtool.Data.DAOs.InstructorDAO;
 import com.example.courseplanningtool.Data.DAOs.TermDAO;
 import com.example.courseplanningtool.Data.Entities.Assessment;
 import com.example.courseplanningtool.Data.Entities.Course;
+import com.example.courseplanningtool.Data.Entities.CourseInstructorCrossRef;
+import com.example.courseplanningtool.Data.Entities.CourseWithInstructors;
 import com.example.courseplanningtool.Data.Entities.Instructor;
 import com.example.courseplanningtool.Data.Entities.Term;
 
@@ -23,6 +25,7 @@ import java.util.concurrent.Executors;
         Course.class,
         Assessment.class,
         Instructor.class,
+        CourseInstructorCrossRef.class
 }, version = 1)
 public abstract class PlannerDatabase extends RoomDatabase {
     private static final String DATABASE_NAME = "course_planner.db";

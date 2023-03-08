@@ -9,36 +9,63 @@ import androidx.fragment.app.DialogFragment;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.courseplanningtool.Activities.Course.CourseDetailActivity;
 import com.example.courseplanningtool.Data.Entities.Assessment;
+import com.example.courseplanningtool.Data.Entities.Course;
 import com.example.courseplanningtool.Data.Repositories.AssessmentRepository;
+import com.example.courseplanningtool.Data.Repositories.CourseRepository;
 import com.example.courseplanningtool.Fragments.DatePickerFragment;
 import com.example.courseplanningtool.R;
+import com.google.android.material.navigation.NavigationBarView;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Future;
 
-public class AssessmentEditActivity extends AppCompatActivity implements View.OnFocusChangeListener, DatePickerDialog.OnDateSetListener {
+public class AssessmentEditActivity extends AppCompatActivity implements View.OnFocusChangeListener, DatePickerDialog.OnDateSetListener, AdapterView.OnItemSelectedListener {
+    /**
+     * Extra argument if editing an existing assessment
+     */
     public static final String EXTRA_ASSESSMENT_ID = "assessmentId";
+
+    /**
+     * Extra argument if visiting activity from course's list of assessments
+     */
     public static final String EXTRA_COURSE_ID = "courseId";
     private DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+
+    /**
+     * Assessment to add/update
+     */
     private Assessment mAssessment;
+
+    /**
+     * Whether assessment is being added or updated
+     */
     private boolean addingNewAssessment;
+
     private TextView displayNameField;
     private TextView startDateField;
     private TextView endDateField;
     private Object activeDateSelectionView;
     private Spinner assessmentTypeSpinner;
-    private long mCourseId;
+    private ArrayAdapter<CharSequence> assessmentAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +74,7 @@ public class AssessmentEditActivity extends AppCompatActivity implements View.On
         addToolBar();
 
         long assessmentId = getIntent().getLongExtra(EXTRA_ASSESSMENT_ID, -1);
-        mCourseId = getIntent().getLongExtra(EXTRA_COURSE_ID, -1);
+        long associatedCourseId = getIntent().getLongExtra(EXTRA_COURSE_ID, -1);
 
         displayNameField = findViewById(R.id.assessmentNameField);
         startDateField = findViewById(R.id.assessmentStartDateField);
@@ -57,12 +84,13 @@ public class AssessmentEditActivity extends AppCompatActivity implements View.On
         endDateField.setOnFocusChangeListener(this);
 
         assessmentTypeSpinner = findViewById(R.id.assessmentTypeSpinner);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.assessment_type_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        assessmentTypeSpinner.setAdapter(adapter);
+        assessmentAdapter = ArrayAdapter.createFromResource(this, R.array.assessment_type_array, android.R.layout.simple_spinner_item);
+        assessmentAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        assessmentTypeSpinner.setAdapter(assessmentAdapter);
 
         if (assessmentId == -1) {
             mAssessment = new Assessment();
+            mAssessment.setAssocCourseId(associatedCourseId);
             addingNewAssessment = true;
             return;
         }
@@ -78,34 +106,12 @@ public class AssessmentEditActivity extends AppCompatActivity implements View.On
         displayNameField.setText(mAssessment.getAssessmentTitle());
         startDateField.setText(mAssessment.getStartDate());
         endDateField.setText(mAssessment.getEndDate());
-        assessmentTypeSpinner.setSelection(adapter.getPosition(mAssessment.getType()));
     }
 
     public void addToolBar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Add/Edit Assessment");
         setSupportActionBar(toolbar);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            navigateBack();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void navigateBack() {
-        Intent intent;
-        if (addingNewAssessment) {
-            intent = new Intent(this, CourseDetailActivity.class);
-            intent.putExtra(CourseDetailActivity.EXTRA_COURSE_ID, mCourseId);
-        } else {
-            intent = new Intent(this, AssessmentDetailsActivity.class);
-            intent.putExtra(AssessmentDetailsActivity.EXTRA_ASSESSMENT_ID, mAssessment.getAssessmentId());
-        }
-        startActivity(intent);
     }
 
     public void handleSaveAssessmentClick(View view) {
@@ -137,10 +143,9 @@ public class AssessmentEditActivity extends AppCompatActivity implements View.On
         mAssessment.setType(assessmentType);
 
         AssessmentRepository assessmentRepo = new AssessmentRepository(getApplication());
-        Future assessmentEditFuture;
+        Future<?> assessmentEditFuture;
 
         if (addingNewAssessment) {
-            mAssessment.setAssocCourseId(mCourseId);
             assessmentEditFuture = assessmentRepo.insert(mAssessment);
         } else {
             assessmentEditFuture = assessmentRepo.update(mAssessment);
@@ -148,7 +153,7 @@ public class AssessmentEditActivity extends AppCompatActivity implements View.On
 
         try {
             assessmentEditFuture.get();
-            navigateBack();
+            finish();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -180,5 +185,46 @@ public class AssessmentEditActivity extends AppCompatActivity implements View.On
         }
 
         activeDateSelectionView = null;
+    }
+
+    private void deleteAssessment() {
+        AssessmentRepository assessmentRepository = new AssessmentRepository(getApplication());
+        Future<?> deleteFuture = assessmentRepository.delete(mAssessment);
+        try {
+            deleteFuture.get();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.edit_navigation_items, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_delete) {
+            Intent intent = new Intent(this, AssessmentListActivity.class);
+            intent.putExtra(AssessmentListActivity.EXTRA_COURSE_ID, mAssessment.getAssocCourseId());
+            deleteAssessment(); // Delete after getting course id
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        // Mandatory callback for interface
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+        if (!addingNewAssessment && adapterView.getId() == assessmentTypeSpinner.getId()) {
+            assessmentTypeSpinner.setSelection(assessmentAdapter.getPosition(mAssessment.getType()));
+        }
     }
 }

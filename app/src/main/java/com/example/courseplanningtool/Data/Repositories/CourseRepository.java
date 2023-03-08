@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.example.courseplanningtool.Data.DAOs.CourseDAO;
 import com.example.courseplanningtool.Data.Entities.Course;
+import com.example.courseplanningtool.Data.Entities.CourseWithInstructors;
 import com.example.courseplanningtool.Data.PlannerDatabase;
 
 import java.util.List;
@@ -27,6 +28,10 @@ public class CourseRepository {
     
     public Future<List<Course>> getCoursesByTerm(long termId) {
         return PlannerDatabase.databaseWriteExecutor.submit(() -> courseDAO.getCoursesByTerm(termId));
+    }
+
+    public Future<CourseWithInstructors> getCourseWithInstructors(long courseId) {
+        return PlannerDatabase.databaseWriteExecutor.submit(() -> courseDAO.getCourseWithInstructors(courseId));
     }
 
     public Future<?> insert(Course course) {
