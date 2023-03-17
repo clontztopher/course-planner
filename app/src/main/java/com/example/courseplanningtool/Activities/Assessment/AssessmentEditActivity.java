@@ -19,6 +19,7 @@ import android.widget.DatePicker;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,7 +66,8 @@ public class AssessmentEditActivity extends AppCompatActivity implements View.On
     private Object activeDateSelectionView;
     private Spinner assessmentTypeSpinner;
     private ArrayAdapter<CharSequence> assessmentAdapter;
-
+    private Switch startDateToggle;
+    private Switch endDateToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +81,8 @@ public class AssessmentEditActivity extends AppCompatActivity implements View.On
         displayNameField = findViewById(R.id.assessmentNameField);
         startDateField = findViewById(R.id.assessmentStartDateField);
         endDateField = findViewById(R.id.assessmentEndDateField);
+        startDateToggle = findViewById(R.id.assessmentStartDateAlert);
+        endDateToggle = findViewById(R.id.assessmentEndDateAlert);
 
         startDateField.setOnFocusChangeListener(this);
         endDateField.setOnFocusChangeListener(this);
@@ -106,6 +110,8 @@ public class AssessmentEditActivity extends AppCompatActivity implements View.On
         displayNameField.setText(mAssessment.getAssessmentTitle());
         startDateField.setText(mAssessment.getStartDate());
         endDateField.setText(mAssessment.getEndDate());
+        startDateToggle.setChecked(mAssessment.hasStartAlert());
+        endDateToggle.setChecked(mAssessment.hasEndAlert());
     }
 
     public void addToolBar() {
@@ -137,10 +143,17 @@ public class AssessmentEditActivity extends AppCompatActivity implements View.On
             return;
         }
 
+        if (startDate.isAfter(endDate)) {
+            Toast.makeText(this, "Start date must be after end date.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         mAssessment.setAssessmentTitle(displayName);
         mAssessment.setStartDate(startDate.format(dtFormatter));
         mAssessment.setEndDate(endDate.format(dtFormatter));
         mAssessment.setType(assessmentType);
+        mAssessment.setStartAlert(startDateToggle.isChecked());
+        mAssessment.setEndAlert(endDateToggle.isChecked());
 
         AssessmentRepository assessmentRepo = new AssessmentRepository(getApplication());
         Future<?> assessmentEditFuture;

@@ -1,12 +1,8 @@
 package com.example.courseplanningtool.Activities.Course;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,29 +10,18 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.courseplanningtool.Activities.Assessment.AssessmentAdapter;
-import com.example.courseplanningtool.Activities.Assessment.AssessmentEditActivity;
 import com.example.courseplanningtool.Activities.Assessment.AssessmentListActivity;
-import com.example.courseplanningtool.Activities.Instructor.InstructorAdapter;
 import com.example.courseplanningtool.Activities.Instructor.InstructorListActivity;
-import com.example.courseplanningtool.Data.Entities.Assessment;
 import com.example.courseplanningtool.Data.Entities.Course;
-import com.example.courseplanningtool.Data.Entities.Instructor;
 import com.example.courseplanningtool.Data.Entities.Term;
-import com.example.courseplanningtool.Data.Repositories.AssessmentRepository;
 import com.example.courseplanningtool.Data.Repositories.CourseRepository;
-import com.example.courseplanningtool.Data.Repositories.InstructorRepository;
 import com.example.courseplanningtool.Data.Repositories.TermRepository;
 import com.example.courseplanningtool.MainMenuProvider;
 import com.example.courseplanningtool.R;
-import com.example.courseplanningtool.Utility.CancelRecyclerClick;
 import com.google.android.material.navigation.NavigationBarView;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Future;
 
 public class CourseDetailActivity extends AppCompatActivity implements NavigationBarView.OnItemSelectedListener {
@@ -55,7 +40,7 @@ public class CourseDetailActivity extends AppCompatActivity implements Navigatio
 
         attachData(courseId);
         addToolbar();
-        layoutView();
+        render();
     }
 
     private void addToolbar() {
@@ -108,16 +93,18 @@ public class CourseDetailActivity extends AppCompatActivity implements Navigatio
         }
     }
 
-    public void layoutView() {
+    public void render() {
         TextView courseTitleView = findViewById(R.id.courseDisplayName);
-        TextView courseDatesView = findViewById(R.id.courseDatesView);
+        TextView startDateView = findViewById(R.id.courseStartDateView);
+        TextView endDateView = findViewById(R.id.courseEndDateView);
         TextView courseStatusView = findViewById(R.id.courseStatusView);
         TextView courseNotesView = findViewById(R.id.courseNotesView);
 
         courseTitleView.setText(mCourse.getTitle());
         String startDateStr = mCourse.getStartDateString();
         String endDateStr = mCourse.getEndDateString();
-        courseDatesView.setText(startDateStr + "-" + endDateStr);
+        startDateView.setText(startDateStr);
+        endDateView.setText(endDateStr);
         courseStatusView.setText(mCourse.getStatus());
         courseNotesView.setText(mCourse.getNotes());
     }
@@ -134,10 +121,22 @@ public class CourseDetailActivity extends AppCompatActivity implements Navigatio
         startActivity(intent);
     }
 
+    public void handleShareNotes(View view) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Notes for " + mCourse.getTitle());
+        intent.putExtra(Intent.EXTRA_TEXT, mCourse.getNotes());
+
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            Intent chooser = Intent.createChooser(intent, "Share notes");
+            startActivity(chooser);
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         attachData(mCourse.getCourseId());
-        layoutView();
+        render();
     }
 }

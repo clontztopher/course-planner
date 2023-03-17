@@ -13,11 +13,11 @@ public class CancelRecyclerClick implements RecyclerView.OnItemTouchListener {
 
     @Override
     public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-
+        // Empty
     }
 
     @Override
     public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-
+        // Empty
     }
 }

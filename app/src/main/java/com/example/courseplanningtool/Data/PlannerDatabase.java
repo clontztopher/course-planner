@@ -8,12 +8,12 @@ import androidx.room.RoomDatabase;
 
 import com.example.courseplanningtool.Data.DAOs.AssessmentDAO;
 import com.example.courseplanningtool.Data.DAOs.CourseDAO;
+import com.example.courseplanningtool.Data.DAOs.CourseInstructorDAO;
 import com.example.courseplanningtool.Data.DAOs.InstructorDAO;
 import com.example.courseplanningtool.Data.DAOs.TermDAO;
 import com.example.courseplanningtool.Data.Entities.Assessment;
 import com.example.courseplanningtool.Data.Entities.Course;
 import com.example.courseplanningtool.Data.Entities.CourseInstructorCrossRef;
-import com.example.courseplanningtool.Data.Entities.CourseWithInstructors;
 import com.example.courseplanningtool.Data.Entities.Instructor;
 import com.example.courseplanningtool.Data.Entities.Term;
 
@@ -48,4 +48,5 @@ public abstract class PlannerDatabase extends RoomDatabase {
     public abstract CourseDAO courseDAO();
     public abstract AssessmentDAO assessmentDAO();
     public abstract InstructorDAO instructorDAO();
+    public abstract CourseInstructorDAO courseInstructorDAO();
 }

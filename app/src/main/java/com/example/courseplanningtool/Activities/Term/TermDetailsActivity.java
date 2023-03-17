@@ -1,39 +1,24 @@
 package com.example.courseplanningtool.Activities.Term;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.courseplanningtool.Activities.Course.CourseAdapter;
-import com.example.courseplanningtool.Activities.Course.CourseDetailActivity;
-import com.example.courseplanningtool.Activities.Course.CourseEditActivity;
 import com.example.courseplanningtool.Activities.Course.CourseListActivity;
-import com.example.courseplanningtool.Data.Entities.Course;
 import com.example.courseplanningtool.Data.Entities.Term;
-import com.example.courseplanningtool.Data.Repositories.CourseRepository;
 import com.example.courseplanningtool.Data.Repositories.TermRepository;
 import com.example.courseplanningtool.MainMenuProvider;
 import com.example.courseplanningtool.R;
-import com.example.courseplanningtool.Utility.CancelRecyclerClick;
 import com.google.android.material.navigation.NavigationBarView;
 
-import java.util.List;
 import java.util.concurrent.Future;
 
 /**
@@ -58,7 +43,7 @@ public class TermDetailsActivity extends AppCompatActivity implements Navigation
 
         addNavigation();
         attachData(termId);
-        layoutView();
+        render();
     }
 
     private void addNavigation() {
@@ -103,14 +88,16 @@ public class TermDetailsActivity extends AppCompatActivity implements Navigation
         }
     }
 
-    private void layoutView() {
+    private void render() {
         TextView termDisplayView = findViewById(R.id.termDisplayName);
-        TextView termDatesView = findViewById(R.id.termDatesView);
+        TextView startDateView = findViewById(R.id.termStartView);
+        TextView endDateView = findViewById(R.id.termEndDateView);
 
         termDisplayView.setText(mTerm.getDisplayName());
         String startDateStr = mTerm.getStartDateString();
         String endDateStr = mTerm.getEndDateString();
-        termDatesView.setText(startDateStr + "-" + endDateStr);
+        startDateView.setText(startDateStr);
+        endDateView.setText(endDateStr);
     }
 
     public void handleViewCoursesClick(View view) {
@@ -123,6 +110,6 @@ public class TermDetailsActivity extends AppCompatActivity implements Navigation
     public void onResume() {
         super.onResume();
         attachData(mTerm.getId());
-        layoutView();
+        render();
     }
 }

@@ -140,6 +140,11 @@ public class TermEditActivity extends AppCompatActivity implements View.OnFocusC
             return;
         }
 
+        if (startDate.isAfter(endDate)) {
+            Toast.makeText(this, "Start date must be after end date.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         mTerm.setDisplayName(displayName);
         mTerm.setStartDateString(startDate.format(dtFormatter));
         mTerm.setEndDateString(endDate.format(dtFormatter));
@@ -161,6 +166,18 @@ public class TermEditActivity extends AppCompatActivity implements View.OnFocusC
     }
 
     private void deleteTerm() {
+        CourseRepository courseRepo = new CourseRepository(getApplication());
+        Future<List<Course>> coursesInTermFuture = courseRepo.getCoursesByTerm(mTerm.getId());
+        try {
+            List<Course> coursesInTerm = coursesInTermFuture.get();
+            if (!coursesInTerm.isEmpty()) {
+                Toast.makeText(this, "Please remove associated courses before removing term.", Toast.LENGTH_LONG).show();
+                return;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         TermRepository termRepo = new TermRepository(getApplication());
         Future<?> deleteFuture = termRepo.delete(mTerm);
         try {

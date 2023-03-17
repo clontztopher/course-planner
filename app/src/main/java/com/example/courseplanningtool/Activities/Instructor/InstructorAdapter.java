@@ -11,6 +11,8 @@ import java.util.List;
 
 public class InstructorAdapter extends RecyclerView.Adapter<InstructorHolder> {
     private final List<Instructor> mInstructors;
+    private boolean courseView = false;
+    private InstructorHolder.ItemTouchListener listener;
 
     public InstructorAdapter(List<Instructor> instructors) {
         mInstructors = instructors;
@@ -25,11 +27,19 @@ public class InstructorAdapter extends RecyclerView.Adapter<InstructorHolder> {
     @Override
     public void onBindViewHolder(InstructorHolder instructorHolder, int position) {
         Instructor instructor = mInstructors.get(position);
-        instructorHolder.bind(instructor);
+        instructorHolder.bind(instructor, courseView, listener);
     }
 
     @Override
     public int getItemCount() {
         return mInstructors.size();
+    }
+
+    public void setCourseView(boolean courseView) {
+        this.courseView = courseView;
+    }
+
+    public void setListener(InstructorHolder.ItemTouchListener listener) {
+        this.listener = listener;
     }
 }

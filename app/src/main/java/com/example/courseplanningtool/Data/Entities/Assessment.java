@@ -24,6 +24,12 @@ public class Assessment {
     @ColumnInfo(name = "course_id")
     private long assocCourseId;
 
+    @ColumnInfo(name = "start_alert")
+    private boolean startAlert;
+
+    @ColumnInfo(name = "end_alert")
+    private boolean endAlert;
+
     public long getAssessmentId() {
         return assessmentId;
     }
@@ -70,5 +76,21 @@ public class Assessment {
 
     public void setAssocCourseId(long assocCourseId) {
         this.assocCourseId = assocCourseId;
+    }
+
+    public boolean hasStartAlert() {
+        return startAlert;
+    }
+
+    public void setStartAlert(boolean startAlert) {
+        this.startAlert = startAlert;
+    }
+
+    public boolean hasEndAlert() {
+        return endAlert;
+    }
+
+    public void setEndAlert(boolean endAlert) {
+        this.endAlert = endAlert;
     }
 }

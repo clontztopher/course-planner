@@ -27,6 +27,12 @@ public class Course {
     @ColumnInfo(name = "notes")
     private String mNotes;
 
+    @ColumnInfo(name = "start_alert")
+    private boolean startAlert;
+
+    @ColumnInfo(name = "end_alert")
+    private boolean endAlert;
+
     public long getCourseId() {
         return courseId;
     }
@@ -82,6 +88,23 @@ public class Course {
     public void setNotes(String mNotes) {
         this.mNotes = mNotes;
     }
+
+    public boolean hasStartAlert() {
+        return startAlert;
+    }
+
+    public void setStartAlert(boolean startAlert) {
+        this.startAlert = startAlert;
+    }
+
+    public boolean hasEndAlert() {
+        return endAlert;
+    }
+
+    public void setEndAlert(boolean endAlert) {
+        this.endAlert = endAlert;
+    }
+
     @Override
     public String toString() {
         return getTitle();

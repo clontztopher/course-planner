@@ -24,7 +24,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintLayout"
             android:layout_width="match_parent"
-            android:layout_height="120dp"
+            android:layout_height="90dp"
             android:background="#3F51B5">
 
             <TextView
@@ -78,10 +78,20 @@
                     app:layout_constraintTop_toBottomOf="@+id/textView9" />
 
                 <TextView
+                    android:id="@+id/textView8"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="88dp"
+                    android:text="End Date"
+                    android:textColor="#00BCD4"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toEndOf="@+id/textView9"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
                     android:id="@+id/assessmentEndDateView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
                     android:layout_marginTop="16dp"
                     android:text="TextView"
                     android:textColor="#FFFFFF"
@@ -90,33 +100,27 @@
                     app:layout_constraintTop_toBottomOf="@+id/textView8" />
 
                 <TextView
-                    android:id="@+id/textView8"
+                    android:id="@+id/textView15"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="100dp"
-                    android:text="End Date"
+                    android:layout_marginStart="140dp"
+                    android:text="Type"
                     android:textColor="#00BCD4"
                     android:textStyle="bold"
-                    app:layout_constraintStart_toEndOf="@+id/textView9"
+                    app:layout_constraintStart_toEndOf="@+id/textView8"
                     app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/assessmentTypeView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="TextView"
+                    android:textColor="#FAF9F9"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toStartOf="@+id/textView15"
+                    app:layout_constraintTop_toBottomOf="@+id/textView15" />
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:text="Type"
-                android:textColor="#00BCD4"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/assessmentTypeView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:text="TextView"
-                android:textColor="#FAF9F9"
-                android:textSize="16sp" />
 
         </LinearLayout>
     </LinearLayout>

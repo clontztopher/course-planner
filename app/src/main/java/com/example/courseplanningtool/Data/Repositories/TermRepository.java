@@ -28,7 +28,7 @@ public class TermRepository {
         return PlannerDatabase.databaseWriteExecutor.submit(() -> termDAO.findTermById(id));
     }
 
-    public Future<?> insert(Term term) {
+    public Future<Long> insert(Term term) {
         return PlannerDatabase.databaseWriteExecutor.submit(() -> termDAO.insertTerm(term));
     }
 

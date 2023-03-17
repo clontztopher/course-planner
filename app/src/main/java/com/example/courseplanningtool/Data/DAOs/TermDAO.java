@@ -22,7 +22,7 @@ public interface TermDAO {
     public Term findTermById(long id);
 
     @Insert(onConflict =  OnConflictStrategy.FAIL)
-    public void insertTerm(Term term);
+    public Long insertTerm(Term term);
 
     @Update
     public void updateTerm(Term term);

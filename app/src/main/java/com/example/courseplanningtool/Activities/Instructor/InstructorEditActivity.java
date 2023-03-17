@@ -22,6 +22,7 @@ import com.example.courseplanningtool.Activities.Assessment.AssessmentListActivi
 import com.example.courseplanningtool.Data.Entities.Assessment;
 import com.example.courseplanningtool.Data.Entities.Instructor;
 import com.example.courseplanningtool.Data.Repositories.AssessmentRepository;
+import com.example.courseplanningtool.Data.Repositories.CourseInstructorRepository;
 import com.example.courseplanningtool.Data.Repositories.InstructorRepository;
 import com.example.courseplanningtool.Fragments.DatePickerFragment;
 import com.example.courseplanningtool.R;
@@ -110,9 +111,12 @@ public class InstructorEditActivity extends AppCompatActivity {
     }
 
     private void deleteInstructor() {
+        CourseInstructorRepository courseInstructorRepository = new CourseInstructorRepository(getApplication());
+        Future<?> removeCoursesFuture = courseInstructorRepository.removeFromCourses(mInstructor.getInstructorId());
         InstructorRepository instructorRepository = new InstructorRepository(getApplication());
         Future<?> deletedFuture = instructorRepository.deleteInstructor(mInstructor);
         try {
+            removeCoursesFuture.get();
             deletedFuture.get();
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,7 +1,6 @@
 package com.example.courseplanningtool.Activities.Instructor;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
@@ -11,38 +10,33 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.courseplanningtool.Activities.Term.TermDetailsActivity;
-import com.example.courseplanningtool.Activities.Term.TermEditActivity;
 import com.example.courseplanningtool.Data.Entities.Course;
-import com.example.courseplanningtool.Data.Entities.CourseWithInstructors;
+import com.example.courseplanningtool.Data.Entities.CourseInstructorCrossRef;
 import com.example.courseplanningtool.Data.Entities.Instructor;
-import com.example.courseplanningtool.Data.Entities.Term;
+import com.example.courseplanningtool.Data.Repositories.CourseInstructorRepository;
 import com.example.courseplanningtool.Data.Repositories.CourseRepository;
 import com.example.courseplanningtool.Data.Repositories.InstructorRepository;
-import com.example.courseplanningtool.Data.Repositories.TermRepository;
 import com.example.courseplanningtool.Fragments.InstructorPickerFragment;
 import com.example.courseplanningtool.MainMenuProvider;
 import com.example.courseplanningtool.R;
+import com.example.courseplanningtool.Utility.CancelRecyclerClick;
 import com.google.android.material.navigation.NavigationBarView;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
-public class InstructorListActivity extends AppCompatActivity implements NavigationBarView.OnItemSelectedListener, InstructorPickerFragment.InstructorPickerDialogListener {
+public class InstructorListActivity extends AppCompatActivity implements NavigationBarView.OnItemSelectedListener, InstructorPickerFragment.InstructorPickerDialogListener, InstructorHolder.ItemTouchListener {
     public static final String EXTRA_COURSE_ID = "courseId";
     private List<Instructor> mInstructors = new ArrayList<>();
     private Course mCourse;
-
     private RecyclerView recyclerView;
     private TextView noDataView;
 
@@ -61,9 +55,10 @@ public class InstructorListActivity extends AppCompatActivity implements Navigat
         recyclerView = findViewById(R.id.instructor_list_recycler);
         noDataView = findViewById(R.id.noInstructorsListView);
 
-        setupRecyclerView();
+        attachInstructorData(courseId);
 
-        showHideInstructors(courseId);
+        setupRecyclerView();
+        showHideInstructors();
 
         addNavigation();
     }
@@ -117,12 +112,20 @@ public class InstructorListActivity extends AppCompatActivity implements Navigat
                 e.printStackTrace();
             }
         } else {
-            CourseRepository courseRepository = new CourseRepository(getApplication());
-            Future<CourseWithInstructors> courseWithInstructorsFuture = courseRepository.getCourseWithInstructors(courseId);
+            CourseRepository courseRepo = new CourseRepository(getApplication());
+            Future<Course> courseFuture = courseRepo.findCourseById(courseId);
+
             try {
-                CourseWithInstructors course = courseWithInstructorsFuture.get();
-                mCourse = course.getCourse();
-                instructors = course.getInstructors();
+                mCourse = courseFuture.get();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+
+            CourseInstructorRepository courseInstructorRepository = new CourseInstructorRepository(getApplication());
+            Future<List<Instructor>> courseInstructorsFuture = courseInstructorRepository.getInstructorsForCourse(mCourse.getCourseId());
+            try {
+                instructors = courseInstructorsFuture.get();
                 mInstructors.clear();
                 mInstructors.addAll(instructors);
             } catch (Exception e) {
@@ -139,14 +142,16 @@ public class InstructorListActivity extends AppCompatActivity implements Navigat
         recyclerView.addItemDecoration(dividerItemDecoration);
         // Add adapter
         InstructorAdapter adapter = new InstructorAdapter(mInstructors);
+        if (mCourse != null) {
+            adapter.setCourseView(true);
+        }
+        adapter.setListener(this);
         recyclerView.setAdapter(adapter);
         return recyclerView;
     }
 
-    private void showHideInstructors(long courseId) {
-        boolean hasInstructors = attachInstructorData(courseId);
-
-        if (!hasInstructors) {
+    private void showHideInstructors() {
+        if (mInstructors.isEmpty()) {
             noDataView.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         } else {
@@ -157,12 +162,50 @@ public class InstructorListActivity extends AppCompatActivity implements Navigat
 
     @Override
     public void onInstructorSelection(Instructor instructor) {
-        Log.d("TEST", instructor.toString());
+        CourseInstructorCrossRef courseInstructorCrossRef = new CourseInstructorCrossRef();
+        courseInstructorCrossRef.setInstructorId(instructor.getInstructorId());
+        courseInstructorCrossRef.setCourseId(mCourse.getCourseId());
+
+        CourseInstructorRepository courseInstructorRepository = new CourseInstructorRepository(getApplication());
+        Future<?> addInstructorFuture = courseInstructorRepository.insert(courseInstructorCrossRef);
+        try {
+            addInstructorFuture.get();
+            attachInstructorData(mCourse.getCourseId());
+            showHideInstructors();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        showHideInstructors(mCourse == null ? -1 : mCourse.getCourseId());
+        attachInstructorData(mCourse == null ? -1 : mCourse.getCourseId());
+        showHideInstructors();
+    }
+
+    @Override
+    public void handleItemTouch(Instructor instructor, View view) {
+        if (mCourse == null) {
+            Intent intent = new Intent(view.getContext(), InstructorDetailsActivity.class);
+            intent.putExtra(InstructorDetailsActivity.EXTRA_INSTRUCTOR_ID, instructor.getInstructorId());
+            view.getContext().startActivity(intent);
+            return;
+        }
+        if (view.getTag() != null && view.getTag().equals("removeBtn")) {
+            CourseInstructorCrossRef courseInstructorCrossRef = new CourseInstructorCrossRef();
+            courseInstructorCrossRef.setInstructorId(instructor.getInstructorId());
+            courseInstructorCrossRef.setCourseId(mCourse.getCourseId());
+
+            CourseInstructorRepository courseInstructorRepository = new CourseInstructorRepository(getApplication());
+            Future<?> courseInstructorCrossRefFuture = courseInstructorRepository.delete(courseInstructorCrossRef);
+            try {
+                courseInstructorCrossRefFuture.get();
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+            attachInstructorData(mCourse.getCourseId());
+            showHideInstructors();
+        }
     }
 }

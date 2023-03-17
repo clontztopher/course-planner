@@ -40,4 +40,8 @@ public class AssessmentRepository {
     public Future<?> delete(Assessment assessment) {
         return PlannerDatabase.databaseWriteExecutor.submit(() -> assessmentDAO.deleteAssessment(assessment));
     }
+
+    public Future<?> deleteCourseAssessments(long courseId) {
+        return PlannerDatabase.databaseWriteExecutor.submit(() -> assessmentDAO.deleteAssessmentsForCourse(courseId));
+    }
 }

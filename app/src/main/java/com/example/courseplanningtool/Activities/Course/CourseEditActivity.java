@@ -1,16 +1,13 @@
 package com.example.courseplanningtool.Activities.Course;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 
-import android.app.Application;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,29 +15,19 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.courseplanningtool.Activities.Assessment.AssessmentEditActivity;
-import com.example.courseplanningtool.Activities.Assessment.AssessmentListActivity;
-import com.example.courseplanningtool.Activities.Term.TermDetailsActivity;
-import com.example.courseplanningtool.Data.Entities.Assessment;
 import com.example.courseplanningtool.Data.Entities.Course;
-import com.example.courseplanningtool.Data.Entities.Term;
 import com.example.courseplanningtool.Data.Repositories.AssessmentRepository;
 import com.example.courseplanningtool.Data.Repositories.CourseRepository;
-import com.example.courseplanningtool.Data.Repositories.TermRepository;
 import com.example.courseplanningtool.Fragments.DatePickerFragment;
 import com.example.courseplanningtool.R;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Future;
 
 public class CourseEditActivity extends AppCompatActivity implements View.OnFocusChangeListener, DatePickerDialog.OnDateSetListener, AdapterView.OnItemSelectedListener {
@@ -74,6 +61,8 @@ public class CourseEditActivity extends AppCompatActivity implements View.OnFocu
     private TextView endDateField;
     private Spinner statusSpinner;
     private TextView courseNotesField;
+    private Switch startAlertToggle;
+    private Switch endAlertToggle;
 
     /**
      * Saves the current target view of data selector
@@ -120,6 +109,10 @@ public class CourseEditActivity extends AppCompatActivity implements View.OnFocu
         statusSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.course_status_array, android.R.layout.simple_spinner_item);
         statusSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         statusSpinner.setAdapter(statusSpinnerAdapter);
+
+        // Alert Toggles
+        startAlertToggle = findViewById(R.id.courseStartAlertSwitch);
+        endAlertToggle = findViewById(R.id.courseEndAlertSwitch);
     }
 
     private void attachCourseData(long courseId) {
@@ -137,6 +130,8 @@ public class CourseEditActivity extends AppCompatActivity implements View.OnFocu
         startDateField.setText(course.getStartDateString());
         endDateField.setText(course.getEndDateString());
         courseNotesField.setText(course.getNotes());
+        startAlertToggle.setChecked(course.hasStartAlert());
+        endAlertToggle.setChecked(course.hasEndAlert());
     }
 
     private void addToolbar() {
@@ -169,11 +164,18 @@ public class CourseEditActivity extends AppCompatActivity implements View.OnFocu
             return;
         }
 
+        if (startDate.isAfter(endDate)) {
+            Toast.makeText(this, "Start date must be after end date.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         course.setTitle(courseTitle);
         course.setStartDateString(startDate.format(dtFormatter));
         course.setEndDateString(endDate.format(dtFormatter));
         course.setStatus(courseStatus);
         course.setNotes(courseNotesString);
+        course.setStartAlert(startAlertToggle.isChecked());
+        course.setEndAlert(endAlertToggle.isChecked());
 
         CourseRepository courseRepo = new CourseRepository(getApplication());
         Future<?> courseEditFuture;
@@ -220,9 +222,12 @@ public class CourseEditActivity extends AppCompatActivity implements View.OnFocu
     }
 
     private void deleteCourse() {
+        AssessmentRepository assessmentRepository = new AssessmentRepository(getApplication());
+        Future<?> removeAssessmentsFuture = assessmentRepository.deleteCourseAssessments(course.getCourseId());
         CourseRepository courseRepo = new CourseRepository(getApplication());
         Future<?> deleteFuture = courseRepo.delete(course);
         try {
+            removeAssessmentsFuture.get();
             deleteFuture.get();
         } catch (Exception e) {
             e.printStackTrace();

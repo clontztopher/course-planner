@@ -60,7 +60,7 @@ public class AssessmentDetailsActivity extends AppCompatActivity implements Navi
         attachAssessmentData(assessmentId);
         attachCourseData(mAssessment.getAssocCourseId());
         addToolbar();
-        layoutViews();
+        render();
     }
 
     private void addToolbar() {
@@ -92,15 +92,17 @@ public class AssessmentDetailsActivity extends AppCompatActivity implements Navi
         }
     }
 
-    private void layoutViews() {
+    private void render() {
         TextView assessmentDisplayView = findViewById(R.id.assessmentDisplayView);
-        TextView assessmentDatesView = findViewById(R.id.assessmentDateView);
+        TextView assessmentStartDateView = findViewById(R.id.assessmentStartDateView);
+        TextView assessmentEndDateView = findViewById(R.id.assessmentEndDateView);
         TextView assessmentTypeView = findViewById(R.id.assessmentTypeView);
 
         assessmentDisplayView.setText(mAssessment.getAssessmentTitle());
         String startDateStr = mAssessment.getStartDate();
         String endDateStr = mAssessment.getEndDate();
-        assessmentDatesView.setText(startDateStr + "-" + endDateStr);
+        assessmentStartDateView.setText(startDateStr);
+        assessmentEndDateView.setText(endDateStr);
         assessmentTypeView.setText(mAssessment.getType());
     }
 
@@ -108,6 +110,6 @@ public class AssessmentDetailsActivity extends AppCompatActivity implements Navi
     public void onResume() {
         super.onResume();
         attachAssessmentData(mAssessment.getAssessmentId());
-        layoutViews();
+        render();
     }
 }

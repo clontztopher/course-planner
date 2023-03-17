@@ -31,4 +31,7 @@ public interface AssessmentDAO {
 
     @Delete
     public void deleteAssessment(Assessment assessment);
+
+    @Query("DELETE FROM assessments WHERE course_id = :courseId")
+    public void deleteAssessmentsForCourse(long courseId);
 }
